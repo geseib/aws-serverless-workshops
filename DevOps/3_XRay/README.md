@@ -4,17 +4,18 @@ In this module, you'll use [AWS X-Ray](https://aws.amazon.com/xray/) to analyze 
 
 The work you will do is divided up into 3 phases:  
 
-1. Environment Setup. 
-2. App problem 1 Descovery and resolution.  
-3. App problem 2 Discovery and resolution 
+1. **Environment Setup**. 
+2. **Problem 1: Discovery** and **Resolution**.  
+3. **Problem 2: Discovery** and **Resolution**. 
 
+But first, a quick intro to aws X-Ray...
 ## AWS X-Ray Overview
 
 [AWS X-Ray](https://aws.amazon.com/xray/) helps you analyze and debug production, distributed applications. With X-Ray, you can understand how your application and its underlying services are performing to identify and troubleshoot the root cause of performance issues and errors. X-Ray provides an end-to-end view of requests as they travel through your application, and shows a map of your application's underlying components. You can use X-Ray to analyze both applications in development and in production.
 
 In Module 3, you will use the CodePipeline that you built in Module 2 to deploy an updated version of the Unicorn API that includes a code bug.  X-Ray has been integrated into the Unicorn API, and you will use X-Ray to identify and troubleshoot the code bug.  Once you have corrected the bug, you will deploy your code changes through your pipeline and use X-Ray to validate the fix.  Next, we'll look at how to integrate X-Ray with Lambda.
 
-## AWS X-Ray Integration with AWS Lambda
+### AWS X-Ray Integration with AWS Lambda
 
 You can now use AWS X-Ray to trace requests made to your serverless applications built using AWS Lambda. This enables you to gain insights into the performance of serverless applications, allowing you to pinpoint the root cause of issues so that you can address them.
 
@@ -56,9 +57,11 @@ const tableName = process.env.TABLE_NAME;
 
 As you can see, the basic X-Ray integration into Lambda requires only two changes.  One new line of code to include the `aws-xray-sdk`, and a second modification to wrap the `aws-sdk` library with X-Ray.  This causes all the AWS API calls to be wrapped by X-Ray for instrumentation without having to change the code further.
 
+**Now on to the work at hand...**
+
 ## Environment Setup
 
-Each of the following sections provide an implementation overview and detailed, step-by-step instructions. The overview should provide enough context for you to complete the implementation if you're already familiar with the AWS Management Console or you want to explore the services yourself without following a walkthrough.
+Lets get your environment setup. Each of the following sections provide an implementation overview and detailed, step-by-step instructions. The overview should provide enough context for you to complete the implementation if you're already familiar with the AWS Management Console or you want to explore the services yourself without following a walkthrough.
 
 If you're using the latest version of the Chrome, Firefox, or Safari web browsers the step-by-step instructions won't be visible until you expand the section.
 
@@ -298,9 +301,9 @@ After pushing your changes to the CodeStar project's CodeCommit git repository, 
 The bug has been fixed and the API now responds without error.  Let's use X-Ray to validate your results.
 
 ### Remediation Validation Using X-Ray
-Lets see what the Amazon X-Ray traces looks like now that you have removed the error.
+Lets see what the AWS X-Ray traces looks like now that you have removed the error.
 <details>
-<summary><strong>Refresh the console in Amazon X-Ray (expand for details)</strong></summary><p>
+<summary><strong>Refresh the console in AWS X-Ray (expand for details)</strong></summary><p>
 1. In the AWS Management Console, click **Services** then select **X-Ray** under Developer Tools.
 
 1. The X-Ray Console will open to a Service map that should look similar to the screenshot below:
@@ -446,9 +449,9 @@ After pushing your changes to the CodeStar project's CodeCommit git repository, 
 The bug has been fixed and the API now responds without error.  Let's use X-Ray to validate your results.
 
 ### Remediation Validation Using X-Ray
-Lets see what the Amazon X-Ray traces looks like now that you have removed the error.
+Lets see what the AWS X-Ray traces looks like now that you have removed the error.
 <details>
-<summary><strong>Refresh the console in Amazon X-Ray (expand for details)</strong></summary><p>
+<summary><strong>View the trace in the AWS X-Ray Console (expand for details)</strong></summary><p>
 1. In the AWS Management Console, click **Services** then select **X-Ray** under Developer Tools.
 
 1. The X-Ray Console will open to a Service map that should look similar to the screenshot below:
@@ -457,6 +460,8 @@ Lets see what the Amazon X-Ray traces looks like now that you have removed the e
 
 **Important**
 > There can be a slight delay for X-Ray to ingest and process the API calls.  If you don't see the above picture, try refreshing the browser window.
+
+</details>
 
 ## Completion
 
