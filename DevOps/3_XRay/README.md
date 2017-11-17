@@ -210,11 +210,11 @@ The orange circles around **AWS::Lambda** and **AWS::Lambda::Function** indicate
 
 1. On the **Trace Detail** page, note the **Timeline** of HTTP calls, originating with the API Gateway, but extending to other distributed systems traced by X-Ray.  The Lambda function in the **Trace Detail** listed above the DynamoDB Table has an orange caution icon to indicate an **Error**.  Mousing over the caution icon displays a pop-up dialog with the cause of Error, in this case, `something is wrong`.
 
-   ![Trace Detail](images/xray-trace-2.png)
+   ![Trace Detail](images/xray-trace-err.png)
 
 1. Click the caution icon to view the Trace **Segment** details (below):
 
-   ![Segment Details](images/xray-trace-3.png)
+   ![Segment Details](images/xray-exception.png)
 
 1.  The **Segment Detail** shows the **Exception** that was raised and the line of code in `list.js` that caused the error, **line 17**.  Next, let's locate and fix the bug.
 
@@ -237,7 +237,7 @@ In the local git clone, Comment out the offending Error code in app/list.js
      error = Error("something is wrong");
    ```
 
-1. Comment or delete Line 17 to fix the code bug
+1. Comment or delete Line 34 to fix the code bug
 
 1. Save the `app/list.js` file.
 
@@ -308,7 +308,7 @@ Lets see what the AWS X-Ray traces looks like now that you have removed the erro
 
 1. The X-Ray Console will open to a Service map that should look similar to the screenshot below:
 
-![Successful X-Ray Service Map](images/xray-trace-4.png)
+![Successful X-Ray Service Map](images/xray-trace-delay.png)
 
 **Important**
 > There can be a slight delay for X-Ray to ingest and process the API calls.  If you don't see the above picture, try refreshing the browser window.
@@ -335,7 +335,7 @@ You should be able to narrow in using the AWS Console as to where and what is go
 
 1. The X-Ray Console will open to a Service map that should look similar to the screenshot below:
 
-![X-Ray Failure](images/xray-failure.png)
+![X-Ray Failure](images/xray-map-delay.png)
 
 **Important**
 > There can be a slight delay for X-Ray to ingest and process the API calls.  If you don't see the above picture, try refreshing the browser window.
@@ -344,7 +344,7 @@ You should be able to narrow in using the AWS Console as to where and what is go
 
 The image shows a client, your browser, connecting to the **AWS::Lambda** resource, which represents the instantiation of the Lambda function.  The second connection to the **AWS::Lambda::Function** represents the call to `list.lambda_handler`, which is the handler defined in the `app-sam.yaml` template.  The third connection to the **AWS::DynamoDB::Table** represents the queries to the DynamoDB table that persists the Unicorn Stable.
 
-The orange circles around **AWS::Lambda** and **AWS::Lambda::Function** indicates there is an error when making the HTTP calls between these services.
+The green circles around **AWS::Lambda** and **AWS::Lambda::Function** indicates there is no error when making the HTTP calls between these services, but notice the time it is taking: almost **3sec**. This seems long, so lets see whats going on.
 
 ### Traces
 
@@ -356,36 +356,29 @@ The orange circles around **AWS::Lambda** and **AWS::Lambda::Function** indicate
 
 1. In the **Trace List** below the **Trace Overview**, click on the first Trace highlighted in orange above to open the **Trace Detail** page.
 
-1. On the **Trace Detail** page, note the **Timeline** of HTTP calls, originating with the API Gateway, but extending to other distributed systems traced by X-Ray.  The Lambda function in the **Trace Detail** listed above the DynamoDB Table has an orange caution icon to indicate an **Error**.  Mousing over the caution icon displays a pop-up dialog with the cause of Error, in this case, `something is wrong`.
+1. On the **Trace Detail** page, note the **Timeline** of HTTP calls, originating with the API Gateway, but extending to other distributed systems traced by X-Ray.  The Lambda function in the **Trace Detail** labeled **Approaching Stables** has a long timeline indicating at a 2 second execution time.  Since the developer used subsegments and labeld them, we can quickly finding the part of the code that is causing the delay.
 
-   ![Trace Detail](images/xray-trace-2.png)
-
-1. Click the caution icon to view the Trace **Segment** details (below):
-
-   ![Segment Details](images/xray-trace-3.png)
-
-1.  The **Segment Detail** shows the **Exception** that was raised and the line of code in `list.js` that caused the error, **line 17**.  Next, let's locate and fix the bug.
-
-1.  Click the **Close** button to close the dialog.
+   ![Trace Detail](images/xray-trace-delay.png)
 
 Next, let's locate and remove the fucntion causing the Slowness!
 </details>
 
 ## Problem 2: Remediation
-In the local git clone, Comment out the offending Detour code in app/list.js or walk.js
+In the local git clone, Comment out the offending Detour code in app/list.js
 <details>
 <summary><strong>Fix the code and push the code back up (expand for details)</strong></summary><p>
 ### 1. Fix Code Bug
 
-1.  On your workstation, open the `app/list.js` file and naviagte to line 17, which should look like the following code snippet:
+1.  On your workstation, open the `app/list.js` file and naviagte to the **Approach Stables** subsegment (in vi you can search pressing esc, and typing /Approach enter, which should take you a few lines past the following code snippet:
 
    ```
-   docClient.scan(params, function(error, data) {
-     // Comment or Delete the following line of code to remove simulated error
-     error = Error("something is wrong");
+   // Comment or Delete the following line of code to remove simulated delay
+  const isDelayed = true;
+
+  AWSXRay.captureAsyncFunc('Approach Stables', (subsegment) => {
    ```
 
-1. Comment or delete Line 17 to fix the code bug
+1. Comment or delete Line 11 to prevent the delay code from running
 
 1. Save the `app/list.js` file.
 
@@ -395,7 +388,7 @@ In the local git clone, Comment out the offending Detour code in app/list.js or 
 
     ```
     %> git add .
-    %> git commit -m "Fix bug"
+    %> git commit -m "removed delay"
     ```
 
 1. Using your Git client, push the Git repository updates to the origin.  For example:
@@ -438,7 +431,7 @@ After pushing your changes to the CodeStar project's CodeCommit git repository, 
 
 1. Your browser should return an error, like the following.  Feel free to refresh your broser several times to register multiple visits to the REST API.
 </details>
-1. Your browser should no longer return an error.  Feel free to refresh your browser several times to register multiple REST API requests.
+1. Your browser should return an answer much quicker.  Feel free to refresh your browser several times to register multiple REST API requests.
 
    ```json
    [ ]
@@ -446,17 +439,17 @@ After pushing your changes to the CodeStar project's CodeCommit git repository, 
 
 > if you have added Unicorns to your stable, your results above should return a list of the inventory.
 
-The bug has been fixed and the API now responds without error.  Let's use X-Ray to validate your results.
+The bug has been fixed and the API now responds without delay.  Let's use X-Ray to validate your results.
 
 ### Remediation Validation Using X-Ray
-Lets see what the AWS X-Ray traces looks like now that you have removed the error.
+Lets see what the AWS X-Ray traces looks like now that you have removed the error and the delay.
 <details>
 <summary><strong>View the trace in the AWS X-Ray Console (expand for details)</strong></summary><p>
 1. In the AWS Management Console, click **Services** then select **X-Ray** under Developer Tools.
 
 1. The X-Ray Console will open to a Service map that should look similar to the screenshot below:
 
-![Successful X-Ray Service Map](images/xray-trace-4.png)
+![Successful X-Ray Service Map](images/xray-map-good.png)
 
 **Important**
 > There can be a slight delay for X-Ray to ingest and process the API calls.  If you don't see the above picture, try refreshing the browser window.
