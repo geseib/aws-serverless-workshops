@@ -350,13 +350,13 @@ The green circles around **AWS::Lambda** and **AWS::Lambda::Function** indicates
 
 1. In the left nav, click on **Traces**.
 
-1. In the **Trace Overview**, note that (in this scenario) there at 7 Errors in the list of Responses.
+1. In the **Trace Overview**, you should see at least 1 ok Response.
 
    ![7 Error Responses](images/xray-trace-1.png)
 
 1. In the **Trace List** below the **Trace Overview**, click on the first Trace highlighted in orange above to open the **Trace Detail** page.
 
-1. On the **Trace Detail** page, note the **Timeline** of HTTP calls, originating with the API Gateway, but extending to other distributed systems traced by X-Ray.  The Lambda function in the **Trace Detail** labeled **Approaching Stables** has a long timeline indicating at a 2 second execution time.  Since the developer used subsegments and labeld them, we can quickly finding the part of the code that is causing the delay.
+1. On the **Trace Detail** page, note the **Timeline** of HTTP calls, originating with the API Gateway, but extending to other distributed systems traced by X-Ray.  The Lambda function in the **Trace Detail** labeled **Approach Stables** has a long timeline indicating a 2 second execution time.  Since the developer used subsegments and labeld them, we can quickly finding the part of the code that is causing the delay.
 
    ![Trace Detail](images/xray-trace-delay.png)
 
@@ -431,6 +431,7 @@ After pushing your changes to the CodeStar project's CodeCommit git repository, 
 
 1. Your browser should return an error, like the following.  Feel free to refresh your broser several times to register multiple visits to the REST API.
 </details>
+
 1. Your browser should return an answer much quicker.  Feel free to refresh your browser several times to register multiple REST API requests.
 
    ```json
@@ -458,4 +459,4 @@ Lets see what the AWS X-Ray traces looks like now that you have removed the erro
 
 ## Completion
 
-Congratulations!  You have successfully integrated AWS X-Ray and demonstrated how it can be used to identify errors, and their remediation.  In the next [Multiple Environments Module](../4_MultipleEnvironments), you will enhance the pipeline by adding a Beta stage to the pipeline, and incorporate testing in the Beta stage before deploying to Prod.
+Congratulations!  You have successfully integrated AWS X-Ray and demonstrated how it can be used to identify errors,latencies, and their remediation.  In the next [Multiple Environments Module](../4_MultipleEnvironments), you will enhance the pipeline by adding a Beta stage to the pipeline, and incorporate testing in the Beta stage before deploying to Prod.
